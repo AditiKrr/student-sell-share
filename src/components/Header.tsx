@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { 
   DropdownMenu, 
@@ -22,25 +21,34 @@ const Header = ({ isAuthenticated, onLogin, onLogout, userCampus }: HeaderProps)
 
   const getFullCollegeName = (campus: string) => {
     const campusMap: { [key: string]: string } = {
-      "iit-delhi": "Indian Institute of Technology Delhi",
-      "iit-bombay": "Indian Institute of Technology Bombay",
-      "iit-madras": "Indian Institute of Technology Madras",
-      "iit-kanpur": "Indian Institute of Technology Kanpur",
-      "iit-kharagpur": "Indian Institute of Technology Kharagpur",
-      "iit-roorkee": "Indian Institute of Technology Roorkee",
-      "iit-guwahati": "Indian Institute of Technology Guwahati",
-      "iit-hyderabad": "Indian Institute of Technology Hyderabad",
-      "nit-trichy": "National Institute of Technology Tiruchirappalli",
-      "nit-warangal": "National Institute of Technology Warangal",
-      "iisc-bangalore": "Indian Institute of Science Bangalore",
-      "du": "Delhi University",
-      "jnu": "Jawaharlal Nehru University",
-      "bhu": "Banaras Hindu University",
-      "amu": "Aligarh Muslim University"
+      "iitd.ac.in": "IIT Delhi",
+      "iitb.ac.in": "IIT Bombay", 
+      "iitm.ac.in": "IIT Madras",
+      "iitk.ac.in": "IIT Kanpur",
+      "iitkgp.ac.in": "IIT Kharagpur",
+      "iitr.ac.in": "IIT Roorkee",
+      "iitg.ac.in": "IIT Guwahati",
+      "iith.ac.in": "IIT Hyderabad",
+      "student.iitd.ac.in": "IIT Delhi",
+      "nitt.edu": "NIT Tiruchirappalli",
+      "nitw.ac.in": "NIT Warangal",
+      "iisc.ac.in": "Indian Institute of Science Bangalore",
+      "du.ac.in": "Delhi University",
+      "jnu.ac.in": "Jawaharlal Nehru University", 
+      "bhu.ac.in": "Banaras Hindu University",
+      "amu.ac.in": "Aligarh Muslim University",
+      "hyderabad.bits-pilani.ac.in": "BITS Pilani, Hyderabad Campus",
+      "pilani.bits-pilani.ac.in": "BITS Pilani, Pilani Campus",
+      "goa.bits-pilani.ac.in": "BITS Pilani, Goa Campus",
+      "dubai.bits-pilani.ac.in": "BITS Pilani, Dubai Campus",
+      "dtu.ac.in": "Delhi Technological University",
+      "nsit.ac.in": "Netaji Subhas University of Technology",
+      "vit.ac.in": "Vellore Institute of Technology",
+      "manipal.edu": "Manipal Academy of Higher Education",
+      "srm.ap.edu": "SRM University, Andhra Pradesh"
     };
     
-    const domainKey = campus.split(".")[0].toLowerCase().replace("-", "-");
-    return campusMap[domainKey] || formatCampusName(campus);
+    return campusMap[campus] || formatCampusName(campus);
   };
 
   return (
