@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -66,13 +65,11 @@ const Index = () => {
   const [filteredProducts, setFilteredProducts] = useState(mockProducts);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const [selectedCondition, setSelectedCondition] = useState("All");
   const [priceRange, setPriceRange] = useState("All");
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showAddProductModal, setShowAddProductModal] = useState(false);
 
   const categories = ["All", "Textbooks", "Notes", "Electronics", "Stationery", "Miscellaneous"];
-  const conditions = ["All", "Excellent", "Good", "Fair"];
   const priceRanges = ["All", "Under ₹500", "₹500-₹2000", "₹2000-₹10000", "Above ₹10000"];
 
   useEffect(() => {
@@ -101,10 +98,6 @@ const Index = () => {
       filtered = filtered.filter(product => product.category === selectedCategory);
     }
 
-    if (selectedCondition !== "All") {
-      filtered = filtered.filter(product => product.condition === selectedCondition);
-    }
-
     if (priceRange !== "All") {
       filtered = filtered.filter(product => {
         const price = product.price;
@@ -124,7 +117,7 @@ const Index = () => {
     }
 
     setFilteredProducts(filtered);
-  }, [products, searchTerm, selectedCategory, selectedCondition, priceRange, userCampus]);
+  }, [products, searchTerm, selectedCategory, priceRange, userCampus]);
 
   const handleLogin = (email: string) => {
     setIsAuthenticated(true);
@@ -143,7 +136,6 @@ const Index = () => {
   const clearFilters = () => {
     setSearchTerm("");
     setSelectedCategory("All");
-    setSelectedCondition("All");
     setPriceRange("All");
   };
 
@@ -262,25 +254,12 @@ const Index = () => {
           <div className="flex flex-col sm:flex-row gap-4 mt-4">
             <Select value={priceRange} onValueChange={setPriceRange}>
               <SelectTrigger className="w-full sm:w-48">
-                <SelectValue placeholder="Price Range" />
+                <SelectValue placeholder="Filter Price" />
               </SelectTrigger>
               <SelectContent>
                 {priceRanges.map((range) => (
                   <SelectItem key={range} value={range}>
                     {range}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            
-            <Select value={selectedCondition} onValueChange={setSelectedCondition}>
-              <SelectTrigger className="w-full sm:w-48">
-                <SelectValue placeholder="Condition" />
-              </SelectTrigger>
-              <SelectContent>
-                {conditions.map((condition) => (
-                  <SelectItem key={condition} value={condition}>
-                    {condition}
                   </SelectItem>
                 ))}
               </SelectContent>

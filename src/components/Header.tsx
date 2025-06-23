@@ -20,13 +20,43 @@ const Header = ({ isAuthenticated, onLogin, onLogout, userCampus }: HeaderProps)
     return campus.split(".")[0].toUpperCase().replace("-", " ");
   };
 
+  const getFullCollegeName = (campus: string) => {
+    const campusMap: { [key: string]: string } = {
+      "iit-delhi": "Indian Institute of Technology Delhi",
+      "iit-bombay": "Indian Institute of Technology Bombay",
+      "iit-madras": "Indian Institute of Technology Madras",
+      "iit-kanpur": "Indian Institute of Technology Kanpur",
+      "iit-kharagpur": "Indian Institute of Technology Kharagpur",
+      "iit-roorkee": "Indian Institute of Technology Roorkee",
+      "iit-guwahati": "Indian Institute of Technology Guwahati",
+      "iit-hyderabad": "Indian Institute of Technology Hyderabad",
+      "nit-trichy": "National Institute of Technology Tiruchirappalli",
+      "nit-warangal": "National Institute of Technology Warangal",
+      "iisc-bangalore": "Indian Institute of Science Bangalore",
+      "du": "Delhi University",
+      "jnu": "Jawaharlal Nehru University",
+      "bhu": "Banaras Hindu University",
+      "amu": "Aligarh Muslim University"
+    };
+    
+    const domainKey = campus.split(".")[0].toLowerCase().replace("-", "-");
+    return campusMap[domainKey] || formatCampusName(campus);
+  };
+
   return (
     <header className="bg-white shadow-sm border-b">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-3">
             <ShoppingBag className="h-8 w-8 text-blue-600" />
-            <h1 className="text-2xl font-bold text-blue-600">Campus Mart</h1>
+            <div className="flex flex-col">
+              <h1 className="text-2xl font-bold text-blue-600">Campus Mart</h1>
+              {isAuthenticated && userCampus && (
+                <span className="text-sm font-light text-gray-600">
+                  {getFullCollegeName(userCampus)}
+                </span>
+              )}
+            </div>
           </div>
           
           <div className="flex items-center space-x-4">
