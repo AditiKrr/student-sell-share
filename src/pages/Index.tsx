@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,66 +9,38 @@ import Header from "@/components/Header";
 import ProductCard from "@/components/ProductCard";
 import AddProductModal from "@/components/AddProductModal";
 import AuthModal from "@/components/AuthModal";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
-// Mock data for demonstration
-const mockProducts = [
-  {
-    id: 1,
-    title: "Engineering Mathematics Textbook",
-    description: "Well-maintained textbook for 2nd year engineering students",
-    price: 800,
-    category: "Textbooks",
-    condition: "Good",
-    seller: {
-      name: "Rahul Kumar",
-      whatsapp: "+919876543210",
-      campus: "iit-delhi"
-    },
-    images: ["/placeholder.svg"],
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 2,
-    title: "iPhone 12 - 128GB",
-    description: "Excellent condition iPhone 12 with original charger and case",
-    price: 35000,
-    category: "Electronics",
-    condition: "Excellent",
-    seller: {
-      name: "Priya Sharma",
-      whatsapp: "+919876543211",
-      campus: "iit-delhi"
-    },
-    images: ["/placeholder.svg"],
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 3,
-    title: "Study Notes - Computer Science",
-    description: "Comprehensive notes for all CS subjects, 3rd year",
-    price: 500,
-    category: "Notes",
-    condition: "Good",
-    seller: {
-      name: "Amit Patel",
-      whatsapp: "+919876543212",
-      campus: "iit-delhi"
-    },
-    images: ["/placeholder.svg"],
-    createdAt: new Date().toISOString()
-  }
-];
+interface Product {
+  id: string;
+  title: string;
+  description: string;
+  price: number;
+  category: string;
+  condition: string;
+  seller: {
+    name: string;
+    whatsapp: string;
+    campus: string;
+  };
+  images: string[];
+  createdAt: string;
+}
 
 const Index = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userCampus, setUserCampus] = useState<string>("");
-  const [products, setProducts] = useState(mockProducts);
-  const [filteredProducts, setFilteredProducts] = useState(mockProducts);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [priceRange, setPriceRange] = useState("All");
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showAddProductModal, setShowAddProductModal] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  
+  const { toast } = useToast();
 
   const categories = ["All", "Textbooks", "Notes", "Electronics", "Stationery", "Miscellaneous"];
   const priceRanges = ["All", "Under ₹500", "₹500-₹2000", "₹2000-₹10000", "Above ₹10000"];
@@ -82,10 +55,63 @@ const Index = () => {
     }
   }, []);
 
+  const fetchProducts = async () => {
+    if (!isAuthenticated || !userCampus) return;
+    
+    setIsLoading(true);
+    try {
+      const campusFilter = userCampus.replace(".", "-").toLowerCase();
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .eq('campus', campusFilter)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching products:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load products. Please refresh the page.",
+          variant: "destructive",
+        });
+      } else {
+        // Transform the data to match the existing Product interface
+        const transformedProducts: Product[] = (data || []).map(item => ({
+          id: item.id,
+          title: item.title,
+          description: item.description,
+          price: item.price,
+          category: item.category,
+          condition: item.condition,
+          seller: {
+            name: item.seller_name,
+            whatsapp: item.whatsapp_number,
+            campus: item.campus
+          },
+          images: [item.image_url || "/placeholder.svg"],
+          createdAt: item.created_at
+        }));
+        
+        setProducts(transformedProducts);
+      }
+    } catch (error) {
+      console.error('Unexpected error fetching products:', error);
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred while loading products.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
-    let filtered = products.filter(product => 
-      product.seller.campus === userCampus.replace(".", "-").toLowerCase()
-    );
+    fetchProducts();
+  }, [isAuthenticated, userCampus]);
+
+  useEffect(() => {
+    let filtered = products;
 
     if (searchTerm) {
       filtered = filtered.filter(product =>
@@ -117,7 +143,7 @@ const Index = () => {
     }
 
     setFilteredProducts(filtered);
-  }, [products, searchTerm, selectedCategory, priceRange, userCampus]);
+  }, [products, searchTerm, selectedCategory, priceRange]);
 
   const handleLogin = (email: string) => {
     setIsAuthenticated(true);
@@ -131,12 +157,19 @@ const Index = () => {
     setIsAuthenticated(false);
     localStorage.removeItem("userEmail");
     setUserCampus("");
+    setProducts([]);
+    setFilteredProducts([]);
   };
 
   const clearFilters = () => {
     setSearchTerm("");
     setSelectedCategory("All");
     setPriceRange("All");
+  };
+
+  const handleProductAdded = () => {
+    // Refresh the products list when a new product is added
+    fetchProducts();
   };
 
   if (!isAuthenticated) {
@@ -272,24 +305,36 @@ const Index = () => {
         </div>
 
         {/* Products Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredProducts.length > 0 ? (
-            filteredProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))
-          ) : (
-            <div className="col-span-full text-center py-12">
-              <h3 className="text-xl font-semibold text-gray-500 mb-2">No items found</h3>
-              <p className="text-gray-400">Try adjusting your search criteria or clear filters</p>
-            </div>
-          )}
-        </div>
+        {isLoading ? (
+          <div className="text-center py-12">
+            <p className="text-gray-500">Loading products...</p>
+          </div>
+        ) : (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredProducts.length > 0 ? (
+              filteredProducts.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))
+            ) : (
+              <div className="col-span-full text-center py-12">
+                <h3 className="text-xl font-semibold text-gray-500 mb-2">No items found</h3>
+                <p className="text-gray-400">
+                  {products.length === 0 
+                    ? "Be the first to list an item on your campus!"
+                    : "Try adjusting your search criteria or clear filters"
+                  }
+                </p>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       <AddProductModal
         isOpen={showAddProductModal}
         onClose={() => setShowAddProductModal(false)}
         userCampus={userCampus}
+        onProductAdded={handleProductAdded}
       />
 
       <AuthModal 

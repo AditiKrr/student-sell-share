@@ -36,6 +36,51 @@ export type Database = {
         }
         Relationships: []
       }
+      products: {
+        Row: {
+          campus: string
+          category: string
+          condition: string
+          created_at: string
+          description: string
+          id: string
+          image_url: string | null
+          price: number
+          seller_name: string
+          title: string
+          updated_at: string
+          whatsapp_number: string
+        }
+        Insert: {
+          campus: string
+          category: string
+          condition: string
+          created_at?: string
+          description: string
+          id?: string
+          image_url?: string | null
+          price: number
+          seller_name: string
+          title: string
+          updated_at?: string
+          whatsapp_number: string
+        }
+        Update: {
+          campus?: string
+          category?: string
+          condition?: string
+          created_at?: string
+          description?: string
+          id?: string
+          image_url?: string | null
+          price?: number
+          seller_name?: string
+          title?: string
+          updated_at?: string
+          whatsapp_number?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { MessageCircle, MapPin } from "lucide-react";
 
 interface Product {
-  id: number;
+  id: string;
   title: string;
   description: string;
   price: number;

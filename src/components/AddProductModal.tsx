@@ -13,14 +13,16 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface AddProductModalProps {
   isOpen: boolean;
   onClose: () => void;
   userCampus: string;
+  onProductAdded: () => void;
 }
 
-const AddProductModal = ({ isOpen, onClose, userCampus }: AddProductModalProps) => {
+const AddProductModal = ({ isOpen, onClose, userCampus, onProductAdded }: AddProductModalProps) => {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -31,13 +33,15 @@ const AddProductModal = ({ isOpen, onClose, userCampus }: AddProductModalProps) 
     sellerName: ""
   });
   
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
   const categories = ["Textbooks", "Notes", "Electronics", "Stationery", "Miscellaneous"];
   const conditions = ["Excellent", "Good", "Fair"];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
     
     // Validate WhatsApp number
     const whatsappRegex = /^\+?[1-9]\d{1,14}$/;
@@ -47,33 +51,67 @@ const AddProductModal = ({ isOpen, onClose, userCampus }: AddProductModalProps) 
         description: "Please enter a valid WhatsApp number",
         variant: "destructive",
       });
+      setIsSubmitting(false);
       return;
     }
 
-    // Here you would typically send the data to your backend
-    console.log("New product:", {
-      ...formData,
-      campus: userCampus,
-      createdAt: new Date().toISOString()
-    });
+    try {
+      // Insert product into Supabase
+      const { data, error } = await supabase
+        .from('products')
+        .insert([
+          {
+            title: formData.title,
+            description: formData.description,
+            price: parseFloat(formData.price),
+            category: formData.category,
+            condition: formData.condition,
+            seller_name: formData.sellerName,
+            whatsapp_number: formData.whatsapp,
+            campus: userCampus.replace(".", "-").toLowerCase(),
+            image_url: "/placeholder.svg" // Default placeholder image
+          }
+        ])
+        .select();
 
-    toast({
-      title: "Product Listed!",
-      description: "Your item has been successfully listed on Campus Mart",
-    });
+      if (error) {
+        console.error('Error inserting product:', error);
+        toast({
+          title: "Error",
+          description: "Failed to list your item. Please try again.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Product Listed Successfully!",
+          description: "Your item has been listed on Campus Mart and is now visible to other students.",
+        });
 
-    // Reset form
-    setFormData({
-      title: "",
-      description: "",
-      price: "",
-      category: "",
-      condition: "",
-      whatsapp: "",
-      sellerName: ""
-    });
+        // Reset form
+        setFormData({
+          title: "",
+          description: "",
+          price: "",
+          category: "",
+          condition: "",
+          whatsapp: "",
+          sellerName: ""
+        });
 
-    onClose();
+        // Notify parent component to refresh products
+        onProductAdded();
+        onClose();
+      }
+    } catch (error) {
+      console.error('Unexpected error:', error);
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleChange = (field: string, value: string) => {
@@ -202,11 +240,11 @@ const AddProductModal = ({ isOpen, onClose, userCampus }: AddProductModalProps) 
           </div>
           
           <div className="flex gap-3 pt-4">
-            <Button type="button" variant="outline" onClick={onClose} className="flex-1">
+            <Button type="button" variant="outline" onClick={onClose} className="flex-1" disabled={isSubmitting}>
               Cancel
             </Button>
-            <Button type="submit" className="flex-1">
-              List Item
+            <Button type="submit" className="flex-1" disabled={isSubmitting}>
+              {isSubmitting ? "Listing..." : "List Item"}
             </Button>
           </div>
         </form>
