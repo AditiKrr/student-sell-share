@@ -6,6 +6,7 @@ import {
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
 import { ShoppingBag, User, LogOut } from "lucide-react";
+import { Link } from "react-router-dom";
 
 interface HeaderProps {
   isAuthenticated: boolean;
@@ -55,7 +56,7 @@ const Header = ({ isAuthenticated, onLogin, onLogout, userCampus }: HeaderProps)
     <header className="bg-white shadow-sm border-b">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
+          <Link to="/" className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
             <ShoppingBag className="h-8 w-8 text-blue-600" />
             <div className="flex flex-col">
               <h1 className="text-2xl font-bold text-blue-600">Campus Mart</h1>
@@ -65,7 +66,7 @@ const Header = ({ isAuthenticated, onLogin, onLogout, userCampus }: HeaderProps)
                 </span>
               )}
             </div>
-          </div>
+          </Link>
           
           <div className="flex items-center space-x-4">
             {isAuthenticated && userCampus && (
