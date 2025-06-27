@@ -46,13 +46,35 @@ const Index = () => {
   const priceRanges = ["All", "Under ₹500", "₹500-₹2000", "₹2000-₹10000", "Above ₹10000"];
 
   useEffect(() => {
-    // Simulate checking authentication status
-    const userEmail = localStorage.getItem("userEmail");
-    if (userEmail) {
-      setIsAuthenticated(true);
-      const domain = userEmail.split("@")[1];
-      setUserCampus(domain);
-    }
+    // Set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        if (session?.user) {
+          setIsAuthenticated(true);
+          const domain = session.user.email?.split("@")[1] || "";
+          setUserCampus(domain);
+          localStorage.setItem("userEmail", session.user.email || "");
+        } else {
+          setIsAuthenticated(false);
+          setUserCampus("");
+          setProducts([]);
+          setFilteredProducts([]);
+          localStorage.removeItem("userEmail");
+        }
+      }
+    );
+
+    // Check for existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        setIsAuthenticated(true);
+        const domain = session.user.email?.split("@")[1] || "";
+        setUserCampus(domain);
+        localStorage.setItem("userEmail", session.user.email || "");
+      }
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   const fetchProducts = async () => {
@@ -146,19 +168,22 @@ const Index = () => {
   }, [products, searchTerm, selectedCategory, priceRange]);
 
   const handleLogin = (email: string) => {
-    setIsAuthenticated(true);
-    localStorage.setItem("userEmail", email);
-    const domain = email.split("@")[1];
-    setUserCampus(domain);
+    // Auth state will be handled by the onAuthStateChange listener
     setShowAuthModal(false);
   };
 
-  const handleLogout = () => {
-    setIsAuthenticated(false);
-    localStorage.removeItem("userEmail");
-    setUserCampus("");
-    setProducts([]);
-    setFilteredProducts([]);
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut();
+      // State cleanup will be handled by the onAuthStateChange listener
+    } catch (error) {
+      console.error('Error signing out:', error);
+      toast({
+        title: "Error",
+        description: "Failed to sign out. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const clearFilters = () => {
