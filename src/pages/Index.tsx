@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,6 +10,7 @@ import AddProductModal from "@/components/AddProductModal";
 import AuthModal from "@/components/AuthModal";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import Footer from "@/components/Footer";
 
 interface Product {
   id: string;
@@ -228,6 +228,8 @@ const Index = () => {
           </div>
         </div>
 
+        <Footer />
+
         <AuthModal 
           isOpen={showAuthModal}
           onClose={() => setShowAuthModal(false)}
@@ -238,7 +240,7 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
       <Header 
         isAuthenticated={true}
         onLogin={() => setShowAuthModal(true)}
@@ -246,7 +248,7 @@ const Index = () => {
         userCampus={userCampus}
       />
       
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-8 flex-1">
         {/* Search and Filters */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-8">
           <div className="flex flex-col lg:flex-row gap-4 mb-4">
@@ -329,6 +331,8 @@ const Index = () => {
           </div>
         )}
       </div>
+
+      <Footer />
 
       <AddProductModal
         isOpen={showAddProductModal}
