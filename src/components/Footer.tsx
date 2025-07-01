@@ -2,13 +2,27 @@
 import { Heart, Github, Mail } from "lucide-react";
 
 const Footer = () => {
+  const handleEmailClick = () => {
+    window.open('mailto:support@campusmart.com', '_blank');
+  };
+
+  const handleGithubClick = () => {
+    window.open('https://github.com/campusmart', '_blank');
+  };
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   return (
     <footer className="bg-white border-t border-gray-200 mt-12">
       <div className="container mx-auto px-4 py-8">
         <div className="grid md:grid-cols-3 gap-8">
           {/* Brand Section */}
           <div className="text-center md:text-left">
-            <h3 className="text-xl font-bold text-blue-600 mb-2">Campus Mart</h3>
+            <h3 className="text-xl font-bold text-blue-600 mb-2 cursor-pointer hover:text-blue-700" onClick={scrollToTop}>
+              Campus Mart
+            </h3>
             <p className="text-gray-600 text-sm">
               Connecting students within campus communities for easy buying and selling.
             </p>
@@ -18,9 +32,24 @@ const Footer = () => {
           <div className="text-center">
             <h4 className="font-semibold text-gray-800 mb-3">Quick Links</h4>
             <div className="space-y-2">
-              <p className="text-gray-600 text-sm hover:text-blue-600 cursor-pointer">How it Works</p>
-              <p className="text-gray-600 text-sm hover:text-blue-600 cursor-pointer">Safety Tips</p>
-              <p className="text-gray-600 text-sm hover:text-blue-600 cursor-pointer">Support</p>
+              <p 
+                className="text-gray-600 text-sm hover:text-blue-600 cursor-pointer transition-colors"
+                onClick={scrollToTop}
+              >
+                How it Works
+              </p>
+              <p 
+                className="text-gray-600 text-sm hover:text-blue-600 cursor-pointer transition-colors"
+                onClick={scrollToTop}
+              >
+                Safety Tips
+              </p>
+              <p 
+                className="text-gray-600 text-sm hover:text-blue-600 cursor-pointer transition-colors"
+                onClick={handleEmailClick}
+              >
+                Support
+              </p>
             </div>
           </div>
           
@@ -28,8 +57,14 @@ const Footer = () => {
           <div className="text-center md:text-right">
             <h4 className="font-semibold text-gray-800 mb-3">Connect</h4>
             <div className="flex justify-center md:justify-end space-x-4">
-              <Mail className="h-5 w-5 text-gray-600 hover:text-blue-600 cursor-pointer" />
-              <Github className="h-5 w-5 text-gray-600 hover:text-blue-600 cursor-pointer" />
+              <Mail 
+                className="h-5 w-5 text-gray-600 hover:text-blue-600 cursor-pointer transition-colors" 
+                onClick={handleEmailClick}
+              />
+              <Github 
+                className="h-5 w-5 text-gray-600 hover:text-blue-600 cursor-pointer transition-colors" 
+                onClick={handleGithubClick}
+              />
             </div>
           </div>
         </div>
