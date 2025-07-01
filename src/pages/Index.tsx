@@ -27,11 +27,13 @@ interface Product {
   images: string[];
   createdAt: string;
   sold?: boolean;
+  sellerEmail?: string;
 }
 
 const Index = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userCampus, setUserCampus] = useState<string>("");
+  const [userEmail, setUserEmail] = useState<string>("");
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -54,10 +56,12 @@ const Index = () => {
           setIsAuthenticated(true);
           const domain = session.user.email?.split("@")[1] || "";
           setUserCampus(domain);
+          setUserEmail(session.user.email || "");
           localStorage.setItem("userEmail", session.user.email || "");
         } else {
           setIsAuthenticated(false);
           setUserCampus("");
+          setUserEmail("");
           setProducts([]);
           setFilteredProducts([]);
           localStorage.removeItem("userEmail");
@@ -71,6 +75,7 @@ const Index = () => {
         setIsAuthenticated(true);
         const domain = session.user.email?.split("@")[1] || "";
         setUserCampus(domain);
+        setUserEmail(session.user.email || "");
         localStorage.setItem("userEmail", session.user.email || "");
       }
     });
@@ -113,7 +118,8 @@ const Index = () => {
           },
           images: [item.image_url || "/placeholder.svg"],
           createdAt: item.created_at,
-          sold: item.sold
+          sold: item.sold,
+          sellerEmail: item.seller_email
         }));
         
         setProducts(transformedProducts);
@@ -197,6 +203,14 @@ const Index = () => {
   const handleProductAdded = () => {
     // Refresh the products list when a new product is added
     fetchProducts();
+  };
+
+  const handleProductUpdate = (productId: string, updates: Partial<Product>) => {
+    setProducts(prevProducts => 
+      prevProducts.map(product => 
+        product.id === productId ? { ...product, ...updates } : product
+      )
+    );
   };
 
   if (!isAuthenticated) {
@@ -342,7 +356,12 @@ const Index = () => {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredProducts.length > 0 ? (
               filteredProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
+                <ProductCard 
+                  key={product.id} 
+                  product={product} 
+                  currentUserEmail={userEmail}
+                  onProductUpdate={handleProductUpdate}
+                />
               ))
             ) : (
               <div className="col-span-full text-center py-12">
