@@ -26,6 +26,7 @@ interface Product {
   };
   images: string[];
   createdAt: string;
+  sold?: boolean;
 }
 
 const Index = () => {
@@ -111,7 +112,8 @@ const Index = () => {
             campus: item.campus
           },
           images: [item.image_url || "/placeholder.svg"],
-          createdAt: item.created_at
+          createdAt: item.created_at,
+          sold: item.sold
         }));
         
         setProducts(transformedProducts);

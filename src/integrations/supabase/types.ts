@@ -47,6 +47,7 @@ export type Database = {
           image_url: string | null
           price: number
           seller_name: string
+          sold: boolean
           title: string
           updated_at: string
           whatsapp_number: string
@@ -61,6 +62,7 @@ export type Database = {
           image_url?: string | null
           price: number
           seller_name: string
+          sold?: boolean
           title: string
           updated_at?: string
           whatsapp_number: string
@@ -75,6 +77,7 @@ export type Database = {
           image_url?: string | null
           price?: number
           seller_name?: string
+          sold?: boolean
           title?: string
           updated_at?: string
           whatsapp_number?: string
